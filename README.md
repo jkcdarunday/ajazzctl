@@ -13,6 +13,9 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+CLI parsing has not been implemented yet.
+
+Change the commands in ajazzctl.py based on mappings in the mappings folder then execute:
 ```sh
 sudo python ajazzctl.py
 ```
