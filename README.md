@@ -12,10 +12,15 @@ This current supports only Ajazz AK66. To support other Ajazz keyboards, this wi
 pip install -r requirements.txt
 ```
 
-## How does it work
-It writes the same commands used by the Windows and writes these to the Ajazz HID Raw device (`/dev/hidraw*`)
-
 ## Usage
 ```sh
 sudo python ajazzctl.py
 ```
+
+## How does it work
+It writes the same commands used by the Windows and writes these to the Ajazz HID Raw device (`/dev/hidraw*`)
+
+## How was it done
+I ran the original Ajazz configuration tool on a Windows virtual machine and attached my Ajazz keyboard to it. Then, I used wireshark with usbmon to monitor the data it sends to and receives from the keyboard while doing changes in the configuration tool.
+
+Adding support to other keyboard would probably require the same process.
