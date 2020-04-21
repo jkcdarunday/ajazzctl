@@ -1,4 +1,6 @@
-from mapping import *
+from hid import get_device_name, get_device_id
+
+import mappings
 
 START_BYTE = 4
 STATE_SIZE = 16 + 3
@@ -15,16 +17,48 @@ COMMAND_PAYLOAD_SIZE = 8
 # - After sending start, keyboard returns with 19 bytes starting with 5 which I assume is its state or version
 
 def main():
-    device = open('/dev/hidraw3', 'rb+')
+    compatible_devices = find_compatible_devices()
+    for compatible_device in compatible_devices:
+        (device, mapping, filename) = compatible_device
+        device_name = get_device_name(device)
 
-    begin_command(device)
-    write_command(device, commands['set_mode'], modes['drop'])
-    write_command(device, commands['set_random_color'], [0])
-    write_command(device, commands['set_key_color'] + keys['fn'], [255, 255, 255])
-    end_command(device)
+        try:
+            modes, commands, keys = mapping.modes, mapping.commands, mapping.keys
+
+            print(f"Found compatible device {device_name} in {filename}")
+
+            begin_command(device, commands)
+            write_command(device, commands['set_mode'], modes['drop'])
+            write_command(device, commands['set_random_color'], [0])
+            write_command(device, commands['set_key_color'] + keys['fn'], [255, 255, 255])
+            end_command(device, commands)
+        except:
+            print(f'Failed to send to {filename}')
 
 
-def begin_command(device):
+def find_compatible_devices():
+    compatible_devices = []
+    for i in range(1, 100):
+        try:
+            filename = f'/dev/hidraw{i}'
+            device = open(filename, 'rb+')
+            device_id = get_device_id(device)
+
+            mapping = mappings.get_device_mapping(device_id)
+            if mapping:
+                compatible_devices.append((device, mapping, filename))
+            else:
+                device.close()
+        except FileNotFoundError:
+            break
+
+    if not compatible_devices:
+        raise FileNotFoundError("No supported device found")
+
+    return compatible_devices
+
+
+def begin_command(device, commands):
     write(device, commands['start'])
     read_state(device)
     read(device)
@@ -35,7 +69,7 @@ def write_command(device, command, data=[]):
     return read(device)
 
 
-def end_command(device):
+def end_command(device, commands):
     write(device, commands['end'])
     read(device)
 
