@@ -18,7 +18,7 @@ def main():
     device = open('/dev/hidraw3', 'rb+')
 
     begin_command(device)
-    write_command(device, commands['set_mode'], modes['drop'] )
+    write_command(device, commands['set_mode'], modes['drop'])
     write_command(device, commands['set_random_color'], [0])
     write_command(device, commands['set_key_color'] + keys['fn'], [255, 255, 255])
     end_command(device)
@@ -29,14 +29,15 @@ def begin_command(device):
     read_state(device)
     read(device)
 
+
 def write_command(device, command, data=[]):
     write(device, command, data)
     return read(device)
 
+
 def end_command(device):
     write(device, commands['end'])
     read(device)
-
 
 
 def write(device, command: [], data=[]):
@@ -46,6 +47,7 @@ def write(device, command: [], data=[]):
     print("SENT: ", payload)
 
     device.write(bytearray(payload))
+
 
 def int_to_2byte(value):
     return [value % 256, value // 256]
